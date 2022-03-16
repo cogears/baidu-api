@@ -1,0 +1,25 @@
+{
+  "name": "@cogears/baidu-api",
+  "version": "1.0.0",
+  "description": "baidu storage api",
+  "main": "src/index.js",
+  "types": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cogears/baidu-api.git"
+  },
+  "keywords": [
+    "baidu"
+  ],
+  "author": "stone",
+  "bugs": {
+    "url": "https://github.com/cogears/baidu-api/issues"
+  },
+  "homepage": "https://github.com/cogears/baidu-api#readme",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "dependencies": {
+    "@cogears/http-client": "^1.0.1"
+  }
+}
