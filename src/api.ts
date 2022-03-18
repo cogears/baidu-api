@@ -40,7 +40,7 @@ class BaiApi extends HttpApi {
         }
     }
 
-    async getRefreshToken(appKey: string, appSecret: string, refreshToken: string) {
+    async refreshToken(appKey: string, appSecret: string, refreshToken: string) {
         let query = {
             grant_type: 'refresh_token',
             client_id: appKey,

@@ -25,23 +25,23 @@ export default {
     getAccessToken(appKey: string, appSecret: string, redirectUrl: string, code: string) {
         return api.getAccessToken(appKey, appSecret, redirectUrl, code)
     },
-    getRefreshToken(appKey: string, appSecret: string, refreshToken: string) {
-        return api.getRefreshToken(appKey, appSecret, refreshToken)
+    refreshToken(appKey: string, appSecret: string, refreshToken: string) {
+        return api.refreshToken(appKey, appSecret, refreshToken)
     },
-    getUser(token: string) {
-        return api.getUser(token)
+    getUser(accessToken: string) {
+        return api.getUser(accessToken)
     },
-    getFileList(token: string, dir: string) {
-        return api.getFileList(token, dir)
+    getFileList(accessToken: string, dir: string) {
+        return api.getFileList(accessToken, dir)
     },
-    async download(token: string, fid: string) {
-        let list = await api.getFileDetail(token, [fid])
-        return await api.getFileBinary(token, list[0].dlink)
+    async download(accessToken: string, fid: string) {
+        let list = await api.getFileDetail(accessToken, [fid])
+        return await api.getFileBinary(accessToken, list[0].dlink)
     },
-    async upload(token: string, source: string, target: string) {
+    async upload(accessToken: string, source: string, target: string) {
         const { md5, size } = await fileStatus(source)
-        let uploadid = await api.postPrecreate(token, target, size, md5)
-        await api.postFileBinary(token, target, uploadid, source)
-        return await api.postCreate(token, target, size, md5, uploadid)
+        let uploadid = await api.postPrecreate(accessToken, target, size, md5)
+        await api.postFileBinary(accessToken, target, uploadid, source)
+        return await api.postCreate(accessToken, target, size, md5, uploadid)
     }
 }
