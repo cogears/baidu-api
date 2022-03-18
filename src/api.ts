@@ -1,23 +1,27 @@
-const http = require('@cogears/http-client')
+import { HttpApi, HttpResponse } from '@cogears/http-client'
 const domain = 'https://pan.baidu.com/rest/2.0'
 
-class BaiApi extends http.HttpApi {
+class BaiApi extends HttpApi {
     constructor() {
         super(domain)
     }
 
-    async postRequest(response, url) {
-        response = await super.postRequest(response)
+    async postRequest(response: HttpResponse, url: string) {
+        const result = await super.postRequest(response, url)
         if (/^https?:\/\/.+?\.baidupcs\.com/i.test(url) || /^https?:\/\/.+?\.pcs\.baidu\.com/i.test(url)) {
-            return response
+            return result
         }
-        if (response.errno == 0) {
-            return response
+        if (result.errno == 0) {
+            return result
         }
-        throw new Error(`[api: ${response.errno}] ${url}\n${response.errmsg || ''}`)
+        throw new Error(`[api: ${result.errno}] ${url}\n${result.errmsg || ''}`)
     }
 
-    async getUser(token) {
+    getOauthUrl(appKey: string, redirectUrl: string = 'oob') {
+        return `https://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id=${appKey}&redirect_uri=${redirectUrl}&scope=basic,netdisk&display=popup&state=xxx`
+    }
+
+    async getUser(token: string) {
         const { avatar_url, baidu_name, uk } = await this.get('/xpan/nas', { method: 'uinfo', access_token: token })
         return {
             uid: uk,
@@ -26,10 +30,10 @@ class BaiApi extends http.HttpApi {
         }
     }
 
-    async getFileList(token, dir) {
+    async getFileList(token: string, dir: string) {
         const query = { method: 'list', access_token: token, dir }
         const { list } = await this.get('/xpan/file', query)
-        return list.map(item => ({
+        return list.map((item: any) => ({
             fid: item.fs_id,
             name: item.server_filename,
             path: item.path,
@@ -39,11 +43,11 @@ class BaiApi extends http.HttpApi {
         }))
     }
 
-    async getFileDetail(token, fsids) {
-        fsids = '[' + fsids.join(',') + ']'
-        const query = { method: 'filemetas', access_token: token, fsids, dlink: 1 }
+    async getFileDetail(token: string, fsids: string[]) {
+        const ids = '[' + fsids.join(',') + ']'
+        const query = { method: 'filemetas', access_token: token, fsids: ids, dlink: 1 }
         const { list } = await this.get('/xpan/multimedia', query)
-        return list.map(item => ({
+        return list.map((item: any) => ({
             fid: item.fs_id,
             name: item.filename,
             path: item.path,
@@ -54,15 +58,15 @@ class BaiApi extends http.HttpApi {
         }))
     }
 
-    getFileBinary(token, dlink) {
+    getFileBinary(token: string, dlink: string) {
         const headers = { 'User-Agent': 'pan.baidu.com' }
         const query = { access_token: token }
         return this.get(dlink, query, headers)
     }
 
-    async postPrecreate(token, path, size, md5) {
+    async postPrecreate(token: string, path: string, size: number, md5: string) {
         const query = { method: 'precreate', access_token: token }
-        const body = http.form({
+        const body = HttpApi.form({
             path,
             size,
             isdir: 0,
@@ -74,16 +78,16 @@ class BaiApi extends http.HttpApi {
         return uploadid
     }
 
-    postFileBinary(token, path, uploadid, source) {
+    postFileBinary(token: string, path: string, uploadid: string, source: string) {
         path = encodeURIComponent(path)
         const query = { method: 'upload', access_token: token, type: 'tmpfile', path, uploadid, partseq: 0 }
-        const file = http.file(source, 'application/octet-stream', 'file')
+        const file = HttpApi.file('file', source)
         return this.post('https://d.pcs.baidu.com/rest/2.0/pcs/superfile2', file, query)
     }
 
-    async postCreate(token, path, size, md5, uploadid) {
+    async postCreate(token: string, path: string, size: number, md5: string, uploadid: string) {
         const query = { method: 'create', access_token: token }
-        const body = http.form({
+        const body = HttpApi.form({
             path,
             size,
             isdir: 0,
@@ -96,4 +100,4 @@ class BaiApi extends http.HttpApi {
     }
 }
 
-module.exports = new BaiApi()
+export default new BaiApi()
