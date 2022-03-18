@@ -19,6 +19,15 @@ function fileStatus(filepath: string): Promise<{ md5: string, size: number }> {
 }
 
 export default {
+    getOauthUrl(appKey: string, redirectUrl: string, type: 'code' | 'token') {
+        return api.getOauthUrl(appKey, redirectUrl, type)
+    },
+    getAccessToken(appKey: string, appSecret: string, redirectUrl: string, code: string) {
+        return api.getAccessToken(appKey, appSecret, redirectUrl, code)
+    },
+    getRefreshToken(appKey: string, appSecret: string, refreshToken: string) {
+        return api.getRefreshToken(appKey, appSecret, refreshToken)
+    },
     getUser(token: string) {
         return api.getUser(token)
     },

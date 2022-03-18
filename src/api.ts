@@ -11,14 +11,48 @@ class BaiApi extends HttpApi {
         if (/^https?:\/\/.+?\.baidupcs\.com/i.test(url) || /^https?:\/\/.+?\.pcs\.baidu\.com/i.test(url)) {
             return result
         }
+        if (url.startsWith('https://openapi.baidu.com/oauth/2.0/token')) {
+            return result
+        }
         if (result.errno == 0) {
             return result
         }
         throw new Error(`[api: ${result.errno}] ${url}\n${result.errmsg || ''}`)
     }
 
-    getOauthUrl(appKey: string, redirectUrl: string = 'oob') {
-        return `https://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id=${appKey}&redirect_uri=${redirectUrl}&scope=basic,netdisk&display=popup&state=xxx`
+    getOauthUrl(appKey: string, redirectUrl: string, type: 'code' | 'token', state: string = "sign") {
+        return `https://openapi.baidu.com/oauth/2.0/authorize?response_type=${type}&client_id=${appKey}&redirect_uri=${redirectUrl}&scope=basic,netdisk&display=popup&state=${state}`
+    }
+
+    async getAccessToken(appKey: string, appSecret: string, redirectUrl: string, code: string) {
+        let query = {
+            grant_type: 'authorization_code',
+            client_id: appKey,
+            client_secret: appSecret,
+            redirect_uri: redirectUrl,
+            code,
+        }
+        let { access_token, refresh_token, expires_in } = await this.get(`https://openapi.baidu.com/oauth/2.0/token`, query)
+        return {
+            accessToken: access_token,
+            refreshToken: refresh_token,
+            expiresIn: expires_in
+        }
+    }
+
+    async getRefreshToken(appKey: string, appSecret: string, refreshToken: string) {
+        let query = {
+            grant_type: 'refresh_token',
+            client_id: appKey,
+            client_secret: appSecret,
+            refresh_token: refreshToken,
+        }
+        let { access_token, refresh_token, expires_in } = await this.get(`https://openapi.baidu.com/oauth/2.0/token`, query)
+        return {
+            accessToken: access_token,
+            refreshToken: refresh_token,
+            expiresIn: expires_in
+        }
     }
 
     async getUser(token: string) {
