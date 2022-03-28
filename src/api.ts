@@ -92,7 +92,7 @@ class BaiApi extends HttpApi {
         }))
     }
 
-    getFileBinary(token: string, dlink: string) {
+    getFile(token: string, dlink: string) {
         const headers = { 'User-Agent': 'pan.baidu.com' }
         const query = { access_token: token }
         return this.get(dlink, query, headers)
@@ -112,10 +112,17 @@ class BaiApi extends HttpApi {
         return uploadid
     }
 
-    postFileBinary(token: string, path: string, uploadid: string, source: string) {
+    postFile(token: string, path: string, uploadid: string, source: string) {
         path = encodeURIComponent(path)
         const query = { method: 'upload', access_token: token, type: 'tmpfile', path, uploadid, partseq: 0 }
         const file = HttpApi.file('file', source)
+        return this.post('https://d.pcs.baidu.com/rest/2.0/pcs/superfile2', file, query)
+    }
+
+    postFileContent(token: string, path: string, uploadid: string, source: string) {
+        path = encodeURIComponent(path)
+        const query = { method: 'upload', access_token: token, type: 'tmpfile', path, uploadid, partseq: 0 }
+        const file = HttpApi.fileContent('file', source)
         return this.post('https://d.pcs.baidu.com/rest/2.0/pcs/superfile2', file, query)
     }
 

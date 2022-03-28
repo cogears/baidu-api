@@ -18,6 +18,14 @@ function fileStatus(filepath: string): Promise<{ md5: string, size: number }> {
     })
 }
 
+function contentStatus(content: string) {
+    const hash = crypto.createHash('md5')
+    hash.update(content)
+    const md5 = hash.digest('hex')
+    const size = Buffer.byteLength(content)
+    return { md5, size }
+}
+
 export default {
     getOauthUrl(appKey: string, redirectUrl: string, type: 'code' | 'token') {
         return api.getOauthUrl(appKey, redirectUrl, type)
@@ -36,12 +44,18 @@ export default {
     },
     async download(accessToken: string, fid: string) {
         let list = await api.getFileDetail(accessToken, [fid])
-        return await api.getFileBinary(accessToken, list[0].dlink)
+        return await api.getFile(accessToken, list[0].dlink)
     },
-    async upload(accessToken: string, source: string, target: string) {
-        const { md5, size } = await fileStatus(source)
+    async uploadFile(accessToken: string, filepath: string, target: string) {
+        const { md5, size } = await fileStatus(filepath)
         let uploadid = await api.postPrecreate(accessToken, target, size, md5)
-        await api.postFileBinary(accessToken, target, uploadid, source)
+        await api.postFile(accessToken, target, uploadid, filepath)
         return await api.postCreate(accessToken, target, size, md5, uploadid)
-    }
+    },
+    async uploadContent(accessToken: string, content: string, target: string) {
+        const { md5, size } = contentStatus(content)
+        let uploadid = await api.postPrecreate(accessToken, target, size, md5)
+        await api.postFileContent(accessToken, target, uploadid, content)
+        return await api.postCreate(accessToken, target, size, md5, uploadid)
+    },
 }

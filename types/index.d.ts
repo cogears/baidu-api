@@ -5,7 +5,8 @@ interface SDK {
     getUser(accessToken: string): Promise<{ uid: string, name: string, avatar: string }>
     getFileList(accessToken: string, dir: string): Promise<Array<{ fid: string, name: string, size: string, path: string, md5: string, lastModifiedTime: number }>>
     download(accessToken: string, fid: string): Promise<any>
-    upload(accessToken: string, source: string, target: string): Promise<string>
+    uploadFile(accessToken: string, filepath: string, target: string): Promise<string>
+    uploadContent(accessToken: string, content: string, target: string): Promise<string>
 }
 
 declare var sdk: SDK
