@@ -14,7 +14,8 @@ npm install @cogears/baidu-api
 - getUser(accessToken: string)
 - getFileList(accessToken: string, dir: string)
 - download(accessToken: string, fid: string)
-- upload(accessToken: string, source: string, target: string)
+- uploadFile(accessToken: string, filepath: string, target: string)
+- uploadContent(accessToken: string, content: string, target: string)
   
 详情可查看types定义
 
